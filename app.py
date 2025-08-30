@@ -242,8 +242,9 @@ def index():
 
 @app.route('/static/<path:filename>')
 def static_files(filename):
-    return send_file(f'static/{filename}')
-
+    import os
+    return send_file(os.path.join('static', filename))
+    
 @app.route('/api/drivers', methods=['GET'])
 def get_drivers():
     return jsonify([driver.to_dict() for driver in tournament.drivers.values()])
@@ -557,6 +558,4 @@ def load_excel():
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5000))
-    debug = os.environ.get('FLASK_ENV') != 'production'
-    host = '127.0.0.1' if debug else '0.0.0.0'
-    app.run(debug=debug, host=host, port=port)
+    app.run(debug=False, host='0.0.0.0', port=port)
