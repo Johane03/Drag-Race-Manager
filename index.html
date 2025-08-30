@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag Race Manager</title>
+    <link rel="icon" href="/static/ms_logo.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 50%, #fde68a 100%);
+            color: #000000;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000000;
+            padding: 15px 0;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+            border-bottom: 2px solid #92400e;
+        }
+        
+        .header img {
+            width: 50px;
+            height: 50px;
+            filter: drop-shadow(0 0 10px rgba(146, 64, 14, 0.7));
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+            font-weight: 600;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(146, 64, 14, 0.3);
+            letter-spacing: 0.5px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #fef3c7;
+            border-bottom: 2px solid #d97706;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .tab {
+            flex: 0 0 auto;
+            padding: 15px 20px;
+            background: #fef3c7;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'SF Pro Text', -apple-system, sans-serif;
+            color: #000000;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-weight: 500;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .tab:hover {
+            background: #fde68a;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000000;
+            border-bottom: 3px solid #92400e;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            background: transparent;
+            padding: 20px;
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Overview Tab Layout */
+        .overview-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .add-driver-card {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 2px solid #d97706;
+            border-radius: 15px;
+            padding: 20px;
+            grid-column: 1 / -1;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .add-driver-card h3, .race-card h3 {
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #92400e;
+            letter-spacing: 0.5px;
+        }
+        
+        .add-driver-form {
+            display: grid;
+            grid-template-columns: auto 1fr auto 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .add-driver-form label {
+            font-family: 'SF Pro Text', -apple-system, sans-serif;
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .add-driver-form input, .add-driver-form select {
+            padding: 15px;
+            border: 2px solid #d1d5db;
+            background: white;
+            color: #000000;
+            font-family: 'SF Pro Text', -apple-system, sans-serif;
+            font-size: 14px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .add-driver-form input:focus, .add-driver-form select:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            font-family: 'SF Pro Text', -apple-system, sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: #000000;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn { 
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .btn:hover { 
+            background: linear-gradient(135deg, #ff8800, #ff6600);
+            box-shadow: 0 6px 20px rgba(255, 136, 0, 0.4);
+        }
+        
+        .drivers-card, .divisions-card, .actions-card, .stats-card {
+            background: #ffffff;
+            border: 2px solid #d97706;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #92400e;
+            letter-spacing: 0.5px;
+            width: max-content;
+        }
+        
+        .divisions-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+        }
+        
+        .division-badge {
+            padding: 6px 12px;
+            color: white;
+            font-family: 'SF Pro Text', -apple-system, sans-serif;
+            font-size: 10px;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .division-badge:hover {
+            transform: scale(1.02);
+        }
+        
+        .drivers-list {
+            max-height: 550px;
+            overflow-y: auto;
+            border: 2px solid #d1d5db;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .driver-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f3f4f6;
+            font-family: 'SF Pro Text', -apple-system, sans-serif;
+            font-size: 13px;
+        }
+        
+        .driver-item.eliminated {
+            color: #6b7280;
+            text-decoration: line-through;
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            gap: 5px;
+        }
+        
+        .division-tab {
+            padding: 20px;
+        }
+        
+        .division-title {
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+            font-size: 18px;
+            font-weight: normal;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .division-drivers-card {
+            background: #ffffff;
+            border: 2px solid #d97706;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 100%;
+            min-height: 400px;
+            max-height: max-content;
+        }
+        
+        .division-drivers-list {
+            min-height: 300px;
+            max-height: 150vh;
+            overflow-y: auto;
+            border: 2px solid #d1d5db;
+            background: white;
+            border-radius: 8px;
+            width: 100%;
+            padding: 15px;
+        }
+        
+        .race-card {
+            background: #fef2f2;
+            border: 2px solid #d97706;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            grid-column: 1 / -1;
+            margin-top: 15px;
+        }
+        
+        .race-form {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .race-row-division {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .race-row {
+            display: grid;
+            grid-template-columns: auto 1fr auto 1fr auto 1fr auto auto;
+            gap: 5px;
+            align-items: center;
+        }
+        
+        .race-form label {
+            font-family: 'SF Pro Text', -apple-system, sans-serif;
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .race-form select {
+            padding: 15px;
+            border: 2px solid #d1d5db;
+            background: white;
+            color: #000000;
+            font-family: 'SF Pro Text', -apple-system, sans-serif;
+            font-size: 14px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .race-form select:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+        }
+        
+        .division-tab {
+            padding: 20px;
+        }
+        
+        .division-title {
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+            font-size: 18px;
+            font-weight: normal;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .division-drivers-card {
+            background: #ffffff;
+            border: 1px solid #f3f4f6;
+            padding: 15px;
+        }
+        
+        .division-drivers-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #d1d5db;
+            background: white;
+        }
+        
+        .message {
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+        
+        .message.success {
+            background: linear-gradient(135deg, #00cc00, #009900);
+            color: #ffffff;
+            border: 2px solid #00ff00;
+            box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
+        }
+        
+        .message.error {
+            background: linear-gradient(135deg, #cc0000, #990000);
+            color: #ffffff;
+            border: 2px solid #ff0000;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+
+        
+        /* Enhanced Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .overview-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .add-driver-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .race-row, .race-row-division {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px 0;
+            }
+            
+            .header img {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .header h1 {
+                font-size: 18px;
+            }
+            
+            .actions-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .divisions-display {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .tab {
+                padding: 10px 12px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="/static/ms_logo.png" alt="Logo">
+            <h1>Drag Race Manager</h1>
+        </div>
+        
+        <div class="tabs" id="tabs">
+            <button class="tab active" onclick="showTab('overview')">Overview</button>
+        </div>
+        
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="add-driver-card">
+                <h3>Add Driver</h3>
+                <div class="add-driver-form">
+                    <label>Name</label>
+                    <input type="text" id="driverName" placeholder="">
+                    <label>Division</label>
+                    <select id="driverDivision">
+                        <!-- Populated by JavaScript -->
+                    </select>
+                    <button onclick="addDriver()" class="btn btn-success">Add Driver</button>
+                </div>
+                <div id="driverMessage"></div>
+            </div>
+            
+            <div class="overview-container">
+                <div class="drivers-card">
+                    <h3 class="card-title">🏁 Drivers by Division</h3>
+                    <div class="drivers-list" id="driversList">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="divisions-card">
+                        <h3 class="card-title">🏁 Available Divisions</h3>
+                        <div class="divisions-display" id="divisionsDisplay">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="actions-card" style="margin-top: 10px;">
+                        <div class="actions-grid">
+                            <button onclick="loadFile()" class="btn">Load</button>
+                            <button onclick="saveFile()" class="btn">Save</button>
+                            <button onclick="resetTournament()" class="btn">New</button>
+                            <button onclick="manageDivisions()" class="btn">Divisions</button>
+                            <button onclick="manageDrivers()" class="btn">Drivers</button>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card" style="margin-top: 10px;">
+                        <h3 class="card-title">Statistics</h3>
+                        <div id="statsDisplay" class="stats-display">No data</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="race-card">
+                <h3>🏁 Record Race</h3>
+                <div class="race-form">
+                    <div class="race-row-division">
+                        <label>Division</label>
+                        <select id="divisionFilter" onchange="filterDriversByDivision()">
+                            <option value="">Select Division...</option>
+                        </select>
+                    </div>
+                    <div class="race-row">
+                        <label>Driver 1</label>
+                        <select id="driver1">
+                            <option value="">Select Driver 1</option>
+                        </select>
+                        <label>Driver 2</label>
+                        <select id="driver2">
+                            <option value="">Select Driver 2</option>
+                        </select>
+                        <label>Winner</label>
+                        <select id="winner">
+                            <option value="">Select Winner</option>
+                        </select>
+                        <button onclick="recordRace()" class="btn btn-success">Record</button>
+                        <button onclick="recordFinalRace()" class="btn btn-warning">Final Race</button>
+                    </div>
+                </div>
+                <div id="raceMessage"></div>
+            </div>
+        </div>
+        
+        <!-- Division Tabs -->
+        <!-- Division tabs will be created dynamically -->
+        
+    </div>
+
+    <script>
+        console.log('JavaScript loaded!');
+        // Global state
+        let tournament = {
+            drivers: {},
+            races: [],
+            race_counter: 0
+        };
+        
+        const divisions = [
+            "2X4_4CYL", "4X4_4CYL", "4X4_6CYL_PETROL", 
+            "4X4_6CYL_DIESEL", "4X4_V8_PETROL", "4X4_V8_DIESEL", 
+            "DAMES", "OPEN"
+        ];
+        
+        const divisionColors = [
+            '#3b82f6', '#22c55e', '#ef4444', '#f59e0b', 
+            '#8b5cf6', '#f97316', '#10b981', '#6366f1'
+        ];
+        
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDivisions();
+            initializeTabs();
+            updateDisplay();
+            
+            // Bind events
+            document.getElementById('driver1').addEventListener('change', updateWinnerOptions);
+            document.getElementById('driver2').addEventListener('change', updateWinnerOptions);
+        });
+        
+        function initializeDivisions() {
+            // Populate division dropdown
+            const select = document.getElementById('driverDivision');
+            const filterSelect = document.getElementById('divisionFilter');
+            
+            select.innerHTML = '';
+            filterSelect.innerHTML = '<option value="">Select Division...</option>';
+            
+            divisions.forEach(division => {
+                const option1 = document.createElement('option');
+                option1.value = division;
+                option1.textContent = division.replace(/_/g, ' ');
+                select.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = division;
+                option2.textContent = division.replace(/_/g, ' ');
+                filterSelect.appendChild(option2);
+            });
+            
+            // Display division badges
+            updateDivisionsDisplay();
+        }
+        
+        function initializeTabs() {
+            const tabsContainer = document.getElementById('tabs');
+            
+            // Add division tabs
+            divisions.forEach(division => {
+                const tab = document.createElement('button');
+                tab.className = 'tab';
+                tab.textContent = division;
+                tab.onclick = () => showTab(division);
+                tabsContainer.appendChild(tab);
+                
+                // Create tab content
+                const tabContent = document.createElement('div');
+                tabContent.id = division;
+                tabContent.className = 'tab-content division-tab';
+                tabContent.innerHTML = `
+                    <div style="width: 100%; max-width: 100%;">
+                        <div class="division-title">${division} Division</div>
+                        <div class="division-drivers-card">
+                            <h3 class="card-title">${division} Drivers</h3>
+                            <div class="division-drivers-list" id="${division}-list">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.querySelector('.container').appendChild(tabContent);
+            });
+        }
+        
+        function showTab(tabName) {
+            console.log('showTab called with:', tabName);
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to selected tab button
+            // Find and activate the correct tab button
+            const activeTab = document.querySelector(`button[onclick*=\"showTab('${tabName}')\"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            } else if (tabName === 'overview') {
+                document.querySelector('button[onclick*=\"overview\"]').classList.add('active');
+            }
+            
+            // Update division tab if it's a division
+            if (divisions.includes(tabName)) {
+                updateDivisionTab(tabName);
+            }
+        }
+        
+        function updateDivisionsDisplay() {
+            const container = document.getElementById('divisionsDisplay');
+            container.innerHTML = '';
+            
+            divisions.forEach((division, index) => {
+                const badge = document.createElement('div');
+                badge.className = 'division-badge';
+                badge.style.backgroundColor = divisionColors[index % divisionColors.length];
+                badge.textContent = division.replace(/_/g, ' ').replace('4X4', '4×4').replace('2X4', '2×4');
+                container.appendChild(badge);
+            });
+        }
+        
+        async function addDriver() {
+            console.log('addDriver called!');
+            const name = document.getElementById('driverName').value.trim();
+            const division = document.getElementById('driverDivision').value;
+            
+            if (!name || !division) {
+                showMessage('driverMessage', 'Enter name and division', 'error');
+                return;
+            }
+            
+            const result = await apiCall('drivers', 'POST', {name, division});
+            
+            if (result.success) {
+                showMessage('driverMessage', result.message, 'success');
+                document.getElementById('driverName').value = '';
+                document.getElementById('driverDivision').value = '';
+                await loadTournament();
+                updateDisplay();
+            } else {
+                showMessage('driverMessage', result.message, 'error');
+            }
+        }
+        
+        function updateDisplay() {
+            updateDriversList();
+            updateDriverDropdowns();
+            updateStatsDisplay();
+            updateAllDivisionTabs();
+        }
+        
+        function updateDriversList() {
+            const container = document.getElementById('driversList');
+            container.innerHTML = '';
+            
+            // Group drivers by division
+            const driversByDivision = {};
+            Object.values(tournament.drivers).forEach(driver => {
+                if (!driversByDivision[driver.division]) {
+                    driversByDivision[driver.division] = [];
+                }
+                driversByDivision[driver.division].push(driver);
+            });
+            
+            // Display drivers by division
+            divisions.forEach(division => {
+                if (driversByDivision[division]) {
+                    // Division header
+                    const header = document.createElement('div');
+                    header.style.backgroundColor = divisionColors[divisions.indexOf(division) % divisionColors.length];
+                    header.style.color = 'white';
+                    header.style.padding = '8px 12px';
+                    header.style.fontWeight = 'bold';
+                    header.style.fontSize = '12px';
+                    header.textContent = division.replace(/_/g, ' ');
+                    container.appendChild(header);
+                    
+                    // Drivers in this division
+                    driversByDivision[division].forEach(driver => {
+                        // Calculate win ratio
+                        const totalRaces = driver.wins + driver.losses;
+                        const winRatio = totalRaces > 0 ? (driver.wins / totalRaces * 100).toFixed(1) : '0.0';
+                        
+                        const item = document.createElement('div');
+                        item.className = 'driver-item';
+                        if (driver.status === 'ELIMINATED') {
+                            item.classList.add('eliminated');
+                        }
+                        item.textContent = `${driver.name} - Wins:${driver.wins} Losses:${driver.losses} (${winRatio}%) [${driver.status}]`;
+                        container.appendChild(item);
+                    });
+                }
+            });
+        }
+        
+        function updateDriverDropdowns() {
+            const driver1Select = document.getElementById('driver1');
+            const driver2Select = document.getElementById('driver2');
+            
+            const activeDrivers = Object.values(tournament.drivers).filter(d => d.status === 'ACTIVE');
+            
+            // Clear and repopulate
+            driver1Select.innerHTML = '<option value="">Select Driver 1</option>';
+            driver2Select.innerHTML = '<option value="">Select Driver 2</option>';
+            
+            activeDrivers.forEach(driver => {
+                const option1 = document.createElement('option');
+                option1.value = driver.name;
+                option1.textContent = `${driver.name} (${driver.division.replace(/_/g, ' ')})`;
+                driver1Select.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = driver.name;
+                option2.textContent = `${driver.name} (${driver.division.replace(/_/g, ' ')})`;
+                driver2Select.appendChild(option2);
+            });
+            
+            updateWinnerOptions();
+        }
+        
+        function updateWinnerOptions() {
+            const driver1 = document.getElementById('driver1').value;
+            const driver2 = document.getElementById('driver2').value;
+            const winnerSelect = document.getElementById('winner');
+            
+            winnerSelect.innerHTML = '<option value="">Select Winner</option>';
+            
+            if (driver1) {
+                const option = document.createElement('option');
+                option.value = driver1;
+                option.textContent = driver1;
+                winnerSelect.appendChild(option);
+            }
+            
+            if (driver2) {
+                const option = document.createElement('option');
+                option.value = driver2;
+                option.textContent = driver2;
+                winnerSelect.appendChild(option);
+            }
+        }
+        
+        function filterDriversByDivision() {
+            const selectedDivision = document.getElementById('divisionFilter').value;
+            const driver1Select = document.getElementById('driver1');
+            const driver2Select = document.getElementById('driver2');
+            
+            if (!selectedDivision) {
+                updateDriverDropdowns();
+                return;
+            }
+            
+            const divisionDrivers = Object.values(tournament.drivers).filter(
+                d => d.status === 'ACTIVE' && d.division === selectedDivision
+            );
+            
+            // Clear and repopulate with division drivers only
+            driver1Select.innerHTML = '<option value="">Select Driver 1</option>';
+            driver2Select.innerHTML = '<option value="">Select Driver 2</option>';
+            
+            divisionDrivers.forEach(driver => {
+                const option1 = document.createElement('option');
+                option1.value = driver.name;
+                option1.textContent = driver.name;
+                driver1Select.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = driver.name;
+                option2.textContent = driver.name;
+                driver2Select.appendChild(option2);
+            });
+            
+            updateWinnerOptions();
+        }
+        
+        function updateStatsDisplay() {
+            const container = document.getElementById('statsDisplay');
+            const totalDrivers = Object.keys(tournament.drivers).length;
+            const activeDrivers = Object.values(tournament.drivers).filter(d => d.status === 'ACTIVE').length;
+            const eliminatedDrivers = Object.values(tournament.drivers).filter(d => d.status === 'ELIMINATED').length;
+            const totalRaces = tournament.races.length;
+            
+            // Calculate additional racing stats
+            const totalWins = Object.values(tournament.drivers).reduce((sum, d) => sum + d.wins, 0);
+            const totalLosses = Object.values(tournament.drivers).reduce((sum, d) => sum + d.losses, 0);
+            const avgRacesPerDriver = totalDrivers > 0 ? ((totalWins + totalLosses) / totalDrivers).toFixed(1) : '0';
+            
+            container.innerHTML = `
+                <strong>🏁 TOURNAMENT STATUS</strong><br>
+                Total Racers: <strong>${totalDrivers}</strong><br>
+                Active Racers: <strong>${activeDrivers}</strong><br>
+                Eliminated: <strong>${eliminatedDrivers}</strong><br><br>
+                <strong>🏎️ RACE STATISTICS</strong><br>
+                Total Races: <strong>${totalRaces}</strong><br>
+                Total Wins: <strong>${totalWins}</strong><br>
+                Total Losses: <strong>${totalLosses}</strong><br>
+                Avg Races/Driver: <strong>${avgRacesPerDriver}</strong>
+            `;
+        }
+        
+        function updateAllDivisionTabs() {
+            divisions.forEach(division => {
+                updateDivisionTab(division);
+            });
+        }
+        
+        function updateDivisionTab(division) {
+            const listContainer = document.getElementById(`${division}-list`);
+            if (!listContainer) return;
+            
+            listContainer.innerHTML = '';
+            
+            const divisionDrivers = Object.values(tournament.drivers).filter(d => d.division === division);
+            
+            divisionDrivers.forEach(driver => {
+                const item = document.createElement('div');
+                item.className = 'driver-item';
+                if (driver.status === 'ELIMINATED') {
+                    item.classList.add('eliminated');
+                }
+                item.textContent = `${driver.name} - Wins:${driver.wins} Losses:${driver.losses} [${driver.status}]`;
+                listContainer.appendChild(item);
+            });
+        }
+        
+        async function recordRace() {
+            const driver1 = document.getElementById('driver1').value;
+            const driver2 = document.getElementById('driver2').value;
+            const winner = document.getElementById('winner').value;
+            
+            if (!driver1 || !driver2 || !winner) {
+                showMessage('raceMessage', 'Fill all race fields', 'error');
+                return;
+            }
+            
+            const result = await apiCall('race', 'POST', {
+                driver1,
+                driver2,
+                winner
+            });
+            
+            if (result.success) {
+                showMessage('raceMessage', 'Race recorded!', 'success');
+                document.getElementById('driver1').value = '';
+                document.getElementById('driver2').value = '';
+                document.getElementById('winner').value = '';
+                await loadTournament();
+                updateDisplay();
+            } else {
+                showMessage('raceMessage', result.message, 'error');
+            }
+        }
+        
+        async function recordFinalRace() {
+            const selectedDivision = document.getElementById('divisionFilter').value;
+            
+            if (!selectedDivision) {
+                showMessage('raceMessage', 'Please select a division first using the Division dropdown above.', 'error');
+                return;
+            }
+            
+            // Get active drivers in the selected division
+            const activeDivisionDrivers = Object.values(tournament.drivers).filter(d => 
+                d.division === selectedDivision && d.status === 'ACTIVE'
+            );
+            
+            if (activeDivisionDrivers.length < 3) {
+                showMessage('raceMessage', 'Need at least 3 active drivers in the division for a final race.', 'error');
+                return;
+            }
+            
+            // Calculate win ratios for each driver
+            activeDivisionDrivers.forEach(driver => {
+                const totalRaces = driver.wins + driver.losses;
+                driver.win_ratio = totalRaces > 0 ? driver.wins / totalRaces : 0;
+            });
+            
+            // Sort by wins (descending), then by win ratio for top 3
+            const topDrivers = activeDivisionDrivers
+                .sort((a, b) => {
+                    if (b.wins !== a.wins) return b.wins - a.wins;
+                    return b.win_ratio - a.win_ratio;
+                })
+                .slice(0, 3);
+            
+            // Create championship race dialog
+            const finalRaceHTML = `
+                <div id="finalRaceModal" style="
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.8);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                ">
+                    <div style="
+                        background: white;
+                        padding: 30px;
+                        border-radius: 15px;
+                        max-width: 500px;
+                        width: 90%;
+                        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    ">
+                        <h2 style="text-align: center; margin-bottom: 20px; color: #d97706;">
+                            🏆 CHAMPIONSHIP FINAL - ${selectedDivision}
+                        </h2>
+                        <p style="text-align: center; margin-bottom: 20px;">
+                            Top 3 drivers compete in the championship race:
+                        </p>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <div style="padding: 10px; background: #fef3c7; border-radius: 8px; margin-bottom: 10px;">
+                                <strong>🥇 1st: ${topDrivers[0].name}</strong> - ${topDrivers[0].wins} wins (${(topDrivers[0].win_ratio * 100).toFixed(1)}%)
+                            </div>
+                            <div style="padding: 10px; background: #e5e7eb; border-radius: 8px; margin-bottom: 10px;">
+                                <strong>🥈 2nd: ${topDrivers[1].name}</strong> - ${topDrivers[1].wins} wins (${(topDrivers[1].win_ratio * 100).toFixed(1)}%)
+                            </div>
+                            <div style="padding: 10px; background: #fde2c6; border-radius: 8px; margin-bottom: 20px;">
+                                <strong>🥉 3rd: ${topDrivers[2].name}</strong> - ${topDrivers[2].wins} wins (${(topDrivers[2].win_ratio * 100).toFixed(1)}%)
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 10px; font-weight: bold;">
+                                Select Championship Winner:
+                            </label>
+                            <select id="championshipWinner" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 8px;">
+                                <option value="">Choose winner...</option>
+                                <option value="${topDrivers[0].name}">🥇 ${topDrivers[0].name}</option>
+                                <option value="${topDrivers[1].name}">🥈 ${topDrivers[1].name}</option>
+                                <option value="${topDrivers[2].name}">🥉 ${topDrivers[2].name}</option>
+                            </select>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="confirmChampionshipRace()" style="
+                                flex: 1;
+                                padding: 12px;
+                                background: #d97706;
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                font-weight: bold;
+                                cursor: pointer;
+                            ">Record Championship</button>
+                            <button onclick="closeFinalRaceModal()" style="
+                                flex: 1;
+                                padding: 12px;
+                                background: #6b7280;
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                cursor: pointer;
+                            ">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', finalRaceHTML);
+            
+            // Store championship data for confirmation
+            window.championshipData = {
+                division: selectedDivision,
+                drivers: topDrivers
+            };
+        }
+        
+        async function confirmChampionshipRace() {
+            const winner = document.getElementById('championshipWinner').value;
+            if (!winner) {
+                alert('Please select a championship winner');
+                return;
+            }
+            
+            const championshipData = window.championshipData;
+            
+            try {
+                // Record the championship race
+                const result = await apiCall('race', 'POST', {
+                    driver1: championshipData.drivers[0].name,
+                    driver2: championshipData.drivers[1].name,
+                    driver3: championshipData.drivers[2].name,
+                    winner: winner,
+                    race_type: 'championship'
+                });
+                
+                if (result.success) {
+                    closeFinalRaceModal();
+                    showMessage('raceMessage', `🏆 Championship Race: ${winner} is the ${championshipData.division} champion!`, 'success');
+                    await loadTournament();
+                    updateDisplay();
+                } else {
+                    showMessage('raceMessage', result.message, 'error');
+                }
+            } catch (error) {
+                alert('Error recording championship race: ' + error.message);
+            }
+        }
+        
+        function closeFinalRaceModal() {
+            const modal = document.getElementById('finalRaceModal');
+            if (modal) {
+                modal.remove();
+            }
+            window.championshipData = null;
+        }
+        
+        // Utility functions
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            const options = {
+                method,
+                headers: {'Content-Type': 'application/json'}
+            };
+            
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+            
+            const response = await fetch(`/api/${endpoint}`, options);
+            return response.json();
+        }
+        
+        async function loadTournament() {
+            const drivers = await apiCall('drivers');
+            tournament.drivers = {};
+            drivers.forEach(driver => {
+                tournament.drivers[driver.name] = driver;
+            });
+            
+            const stats = await apiCall('stats');
+            tournament.races = new Array(stats.total_races);
+            tournament.race_counter = stats.total_races;
+        }
+        
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="message ${type}">${message}</div>`;
+            
+            setTimeout(() => {
+                element.innerHTML = '';
+            }, 5000);
+        }
+        
+        // Action buttons
+        function loadFile() {
+            // Create a file input element
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json,.xlsx,.xls';
+            fileInput.style.display = 'none';
+            
+            fileInput.onchange = async function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                try {
+                    const fileName = file.name.toLowerCase();
+                    
+                    if (fileName.endsWith('.json')) {
+                        // Handle JSON files
+                        const text = await file.text();
+                        const tournamentData = JSON.parse(text);
+                        
+                        // Validate the data structure
+                        if (!tournamentData.drivers || !tournamentData.races) {
+                            alert('Invalid tournament file format');
+                            return;
+                        }
+                        
+                        // Load the tournament data
+                        const result = await apiCall('load', 'POST', tournamentData);
+                        
+                        if (result.success) {
+                            alert('Tournament loaded successfully!');
+                            await loadTournament();
+                            updateDisplay();
+                        } else {
+                            alert('Error loading tournament: ' + result.message);
+                        }
+                    } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                        // Handle Excel files by sending to server
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        
+                        const response = await fetch('/api/load-excel', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            alert('Tournament loaded from Excel successfully!');
+                            await loadTournament();
+                            updateDisplay();
+                        } else {
+                            alert('Error loading Excel file: ' + result.message);
+                        }
+                    } else {
+                        alert('Please select a JSON or Excel file');
+                    }
+                } catch (error) {
+                    alert('Error reading file: ' + error.message);
+                }
+            };
+            
+            // Trigger file selection
+            document.body.appendChild(fileInput);
+            fileInput.click();
+            document.body.removeChild(fileInput);
+        }
+        
+        async function saveFile() {
+            // Save as Excel format (like original drag race app)
+            window.open('/api/export-excel', '_blank');
+        }
+        
+        
+        function resetTournament() {
+            if (confirm('Are you sure you want to start a new tournament? This will delete all current data.')) {
+                location.reload();
+            }
+        }
+        
+        function manageDivisions() {
+            // Create divisions management modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 30px;
+                    border-radius: 15px;
+                    max-width: 700px;
+                    width: 90%;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                ">
+                    <h2 style="text-align: center; margin-bottom: 20px; color: #d97706;">
+                        🏁 Manage Divisions
+                    </h2>
+                    
+                    <div style="margin-bottom: 20px; padding: 15px; background: #fef3c7; border-radius: 8px;">
+                        <h4 style="margin: 0 0 15px 0; color: #92400e;">Add New Division</h4>
+                        <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px;">
+                            <input type="text" id="newDivisionName" placeholder="Enter division name (e.g., 4X4_V10_DIESEL)" style="
+                                padding: 10px;
+                                border: 2px solid #d1d5db;
+                                border-radius: 8px;
+                                font-family: monospace;
+                            ">
+                            <button onclick="addNewDivision()" style="
+                                padding: 10px 20px;
+                                background: #16a34a;
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-weight: 500;
+                            ">Add</button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 15px 0; color: #92400e;">Current Divisions</h4>
+                        <div id="divisionsList" style="
+                            max-height: 300px;
+                            overflow-y: auto;
+                            border: 2px solid #d1d5db;
+                            border-radius: 8px;
+                            background: white;
+                            padding: 10px;
+                        ">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <button onclick="closeDivisionsModal()" style="
+                            padding: 12px 24px;
+                            background: #6b7280;
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        ">Close</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            modal.id = 'divisionsModal';
+            
+            // Store reference globally
+            window.selectedDivision = null;
+            
+            // Populate divisions list
+            updateDivisionsList();
+        }
+        
+        function updateDivisionsList() {
+            const container = document.getElementById('divisionsList');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (divisions.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 20px;">No divisions created yet.</p>';
+                return;
+            }
+            
+            divisions.forEach((division, index) => {
+                const divisionDrivers = Object.values(tournament.drivers).filter(d => d.division === division);
+                const hasDrivers = divisionDrivers.length > 0;
+                
+                const divisionItem = document.createElement('div');
+                divisionItem.style.cssText = `
+                    border: 2px solid #d97706;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin-bottom: 10px;
+                    background: #fef3c7;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                `;
+                
+                divisionItem.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center;">
+                        <div>
+                            <strong style="color: #92400e; font-size: 16px;">${division.replace(/_/g, ' ')}</strong>
+                            <div style="font-size: 12px; color: #6b7280; margin-top: 5px;">
+                                ${divisionDrivers.length} driver${divisionDrivers.length !== 1 ? 's' : ''}
+                                ${hasDrivers ? '(Contains drivers - cannot delete)' : '(Empty - can delete)'}
+                            </div>
+                        </div>
+                        <button class="edit-division-btn" data-division="${division}" data-index="${index}" style="
+                            padding: 8px 12px;
+                            background: #d97706;
+                            color: white;
+                            border: none;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 12px;
+                        ">Edit</button>
+                        <button class="delete-division-btn" data-division="${division}" data-has-drivers="${hasDrivers}" style="
+                            padding: 8px 12px;
+                            background: ${hasDrivers ? '#9ca3af' : '#dc2626'};
+                            color: white;
+                            border: none;
+                            border-radius: 6px;
+                            cursor: ${hasDrivers ? 'not-allowed' : 'pointer'};
+                            font-size: 12px;
+                        " ${hasDrivers ? 'disabled' : ''}>Delete</button>
+                    </div>
+                `;
+                
+                // Add event listeners instead of inline onclick
+                const editBtn = divisionItem.querySelector('.edit-division-btn');
+                const deleteBtn = divisionItem.querySelector('.delete-division-btn');
+                
+                editBtn.addEventListener('click', () => editDivision(division, index));
+                if (!hasDrivers) {
+                    deleteBtn.addEventListener('click', () => deleteDivision(division, hasDrivers));
+                }
+                
+                container.appendChild(divisionItem);
+            });
+        }
+        
+        function addNewDivision() {
+            const input = document.getElementById('newDivisionName');
+            const newDivision = input.value.trim().toUpperCase();
+            
+            if (!newDivision) {
+                alert('Please enter a division name');
+                return;
+            }
+            
+            if (divisions.includes(newDivision)) {
+                alert('Division already exists');
+                return;
+            }
+            
+            // Validate format (should be uppercase with underscores)
+            if (!/^[A-Z0-9_]+$/.test(newDivision)) {
+                alert('Division name should only contain uppercase letters, numbers, and underscores (e.g., 4X4_V10_DIESEL)');
+                return;
+            }
+            
+            // Add to divisions array
+            divisions.push(newDivision);
+            
+            // Clear input
+            input.value = '';
+            
+            // Update display
+            updateDivisionsList();
+            updateDisplay();
+            
+            alert(`Division "${newDivision.replace(/_/g, ' ')}" added successfully!`);
+        }
+        
+        function editDivision(oldDivision, index) {
+            const newName = prompt(`Edit division name:`, oldDivision);
+            if (!newName) return;
+            
+            const newDivision = newName.trim().toUpperCase();
+            
+            if (newDivision === oldDivision) return;
+            
+            if (divisions.includes(newDivision)) {
+                alert('Division name already exists');
+                return;
+            }
+            
+            // Validate format
+            if (!/^[A-Z0-9_]+$/.test(newDivision)) {
+                alert('Division name should only contain uppercase letters, numbers, and underscores');
+                return;
+            }
+            
+            // Update division in array
+            divisions[index] = newDivision;
+            
+            // Update any existing drivers in this division
+            Object.values(tournament.drivers).forEach(driver => {
+                if (driver.division === oldDivision) {
+                    driver.division = newDivision;
+                }
+            });
+            
+            // Update display
+            updateDivisionsList();
+            updateDisplay();
+            
+            alert(`Division renamed from "${oldDivision.replace(/_/g, ' ')}" to "${newDivision.replace(/_/g, ' ')}"`);
+        }
+        
+        function deleteDivision(division, hasDrivers) {
+            if (hasDrivers) {
+                alert('Cannot delete division that contains drivers. Please move or delete all drivers first.');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete the division "${division.replace(/_/g, ' ')}"?`)) {
+                return;
+            }
+            
+            // Remove from divisions array
+            const index = divisions.indexOf(division);
+            if (index > -1) {
+                divisions.splice(index, 1);
+            }
+            
+            // Update display
+            updateDivisionsList();
+            updateDisplay();
+            
+            alert(`Division "${division.replace(/_/g, ' ')}" deleted successfully!`);
+        }
+        
+        function closeDivisionsModal() {
+            const modal = document.getElementById('divisionsModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        function manageDrivers() {
+            try {
+                // Create modal for driver management
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+            
+            const dialog = document.createElement('div');
+            dialog.style.cssText = `
+                background: white;
+                padding: 30px;
+                border-radius: 15px;
+                max-width: 700px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            `;
+            
+            dialog.innerHTML = `
+                <h2 style="text-align: center; margin-bottom: 20px; color: #d97706;">
+                    👥 Manage Drivers
+                </h2>
+                
+                <div style="margin-bottom: 20px; padding: 15px; background: #fef3c7; border-radius: 8px;">
+                    <h4 style="margin: 0 0 15px 0; color: #92400e;">Add New Driver</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px;">
+                        <input type="text" id="newDriverName" placeholder="Driver name" style="
+                            padding: 10px;
+                            border: 2px solid #d1d5db;
+                            border-radius: 8px;
+                        ">
+                        <select id="newDriverDivision" style="
+                            padding: 10px;
+                            border: 2px solid #d1d5db;
+                            border-radius: 8px;
+                        ">
+                            <option value="">Select Division</option>
+                        </select>
+                        <button onclick="addNewDriver()" style="
+                            padding: 10px 20px;
+                            background: #16a34a;
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: 500;
+                        ">Add</button>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="font-size: 16px; margin-bottom: 15px; color: #92400e;">Filter by Division:</h4>
+                    <select id="driverFilterDivision" onchange="updateDriverManagerList()" style="
+                        width: 100%;
+                        padding: 10px;
+                        border: 2px solid #d1d5db;
+                        border-radius: 8px;
+                        margin-bottom: 15px;
+                    ">
+                        <option value="">All Divisions</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <div id="manageDriversList" style="
+                        max-height: 400px;
+                        overflow-y: auto;
+                        border: 2px solid #d1d5db;
+                        border-radius: 8px;
+                        background: white;
+                        padding: 10px;
+                    ">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                    <button id="editDriverBtn" onclick="editSelectedDriver()" style="
+                        padding: 12px;
+                        background: #d97706;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-weight: 500;
+                    ">Edit Driver</button>
+                    <button id="deleteDriverBtn" onclick="deleteSelectedDriver()" style="
+                        padding: 12px;
+                        background: #dc2626;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-weight: 500;
+                    ">Delete Driver</button>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button onclick="closeDriverManager()" style="
+                        padding: 12px 24px;
+                        background: #6b7280;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                    ">Close</button>
+                </div>
+            `;
+            
+            modal.appendChild(dialog);
+            document.body.appendChild(modal);
+            modal.id = 'driverManagementModal';
+            
+            // Populate division dropdowns
+            const filterSelect = document.getElementById('driverFilterDivision');
+            const newDriverSelect = document.getElementById('newDriverDivision');
+            
+            divisions.forEach(division => {
+                // Filter dropdown
+                const filterOption = document.createElement('option');
+                filterOption.value = division;
+                filterOption.textContent = division.replace(/_/g, ' ');
+                filterSelect.appendChild(filterOption);
+                
+                // New driver dropdown
+                const newOption = document.createElement('option');
+                newOption.value = division;
+                newOption.textContent = division.replace(/_/g, ' ');
+                newDriverSelect.appendChild(newOption);
+            });
+            
+            // Store references globally
+            window.driverManagerModal = modal;
+            window.selectedDriverElement = null;
+            
+            // Populate drivers list
+            updateDriverManagerList();
+            
+            // Close on background click
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeDriverManager();
+                }
+            });
+            } catch (error) {
+                console.error('Error in manageDrivers:', error);
+                alert('Error opening drivers management window. Please try again.');
+            }
+        }
+        
+        function updateDriverManagerList() {
+            const container = document.getElementById('manageDriversList');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            const filterDivision = document.getElementById('driverFilterDivision')?.value || '';
+            
+            // Get filtered drivers
+            let driversToShow = Object.values(tournament.drivers);
+            if (filterDivision) {
+                driversToShow = driversToShow.filter(d => d.division === filterDivision);
+            }
+            
+            if (driversToShow.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 20px;">No drivers found.</p>';
+                return;
+            }
+            
+            // Group drivers by division
+            const driversByDivision = {};
+            driversToShow.forEach(driver => {
+                if (!driversByDivision[driver.division]) {
+                    driversByDivision[driver.division] = [];
+                }
+                driversByDivision[driver.division].push(driver);
+            });
+            
+            // Display drivers by division
+            divisions.forEach(division => {
+                if (driversByDivision[division]) {
+                    // Division header
+                    const header = document.createElement('div');
+                    const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4'];
+                    const colorIndex = divisions.indexOf(division) % colors.length;
+                    header.style.cssText = `
+                        background: ${colors[colorIndex]};
+                        color: white;
+                        padding: 8px 12px;
+                        font-weight: bold;
+                        font-size: 12px;
+                    `;
+                    header.textContent = division.replace(/_/g, ' ');
+                    container.appendChild(header);
+                    
+                    // Drivers in this division
+                    driversByDivision[division].forEach(driver => {
+                        const item = document.createElement('div');
+                        item.style.cssText = `
+                            padding: 8px 12px;
+                            border-bottom: 1px solid #f3f4f6;
+                            font-size: 11px;
+                            cursor: pointer;
+                            ${driver.status === 'ELIMINATED' ? 'color: #6b7280; text-decoration: line-through;' : ''}
+                        `;
+                        item.textContent = `${driver.name} | ${driver.division.replace(/_/g, ' ')} | Wins:${driver.wins} Losses:${driver.losses} [${driver.status}]`;
+                        
+                        // Click handler for selection
+                        item.addEventListener('click', function() {
+                            // Remove previous selection
+                            if (window.selectedDriverElement) {
+                                window.selectedDriverElement.style.background = '';
+                            }
+                            
+                            // Select this driver
+                            item.style.background = '#3b82f6';
+                            item.style.color = 'white';
+                            window.selectedDriverElement = item;
+                            window.selectedDriverData = driver;
+                        });
+                        
+                        container.appendChild(item);
+                    });
+                }
+            });
+        }
+        
+        function editSelectedDriver() {
+            if (!window.selectedDriverData) {
+                alert('Please select a driver to edit!');
+                return;
+            }
+            
+            const driver = window.selectedDriverData;
+            
+            // Create edit dialog
+            const editModal = document.createElement('div');
+            editModal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1001;
+            `;
+            
+            const editDialog = document.createElement('div');
+            editDialog.style.cssText = `
+                background: #ffffff;
+                border: 1px solid #f3f4f6;
+                padding: 20px;
+                width: 400px;
+                font-family: 'SF Pro Text', -apple-system, sans-serif;
+            `;
+            
+            editDialog.innerHTML = `
+                <h3 style="font-family: 'SF Pro Display', -apple-system, sans-serif; font-size: 16px; font-weight: normal; margin-bottom: 15px;">Edit Driver</h3>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-size: 12px; color: #6b7280;">Name:</label>
+                    <input type="text" id="editDriverName" value="\${driver.name}" style="width: 100%; padding: 12px; border: 1px solid #d1d5db; background: white; font-size: 12px;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-size: 12px; color: #6b7280;">Division:</label>
+                    <select id="editDriverDivision" style="width: 100%; padding: 12px; border: 1px solid #d1d5db; background: white; font-size: 12px;">
+                        \${divisions.map(div => \`<option value="\${div}" \${div === driver.division ? 'selected' : ''}>\${div.replace(/_/g, ' ')}</option>\`).join('')}
+                    </select>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button onclick="saveDriverEdit()" class="btn" style="background: #6b7280; color: black; width: 100%;">Save</button>
+                    <button onclick="cancelDriverEdit()" class="btn" style="background: #6b7280; color: black; width: 100%;">Cancel</button>
+                </div>
+            `;
+            
+            editModal.appendChild(editDialog);
+            document.body.appendChild(editModal);
+            
+            window.editDriverModal = editModal;
+            window.originalDriverName = driver.name;
+        }
+        
+        async function saveDriverEdit() {
+            const newName = document.getElementById('editDriverName').value.trim();
+            const newDivision = document.getElementById('editDriverDivision').value;
+            const originalName = window.originalDriverName;
+            
+            if (!newName || !newDivision) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Check if name changed and if new name already exists
+            if (newName !== originalName && tournament.drivers[newName]) {
+                alert(`Driver '${newName}' already exists`);
+                return;
+            }
+            
+            try {
+                // Update via API (we'll need to add this endpoint)
+                const result = await apiCall(`drivers/${encodeURIComponent(originalName)}`, 'PUT', {
+                    name: newName,
+                    division: newDivision
+                });
+                
+                if (result.success) {
+                    cancelDriverEdit();
+                    closeDriverManager();
+                    await loadTournament();
+                    updateDisplay();
+                    alert('Driver updated successfully!');
+                } else {
+                    alert(result.message || 'Error updating driver');
+                }
+            } catch (error) {
+                // Fallback - update locally for now
+                const driver = tournament.drivers[originalName];
+                if (driver) {
+                    // Update name if changed
+                    if (newName !== originalName) {
+                        delete tournament.drivers[originalName];
+                        driver.name = newName;
+                        tournament.drivers[newName] = driver;
+                    }
+                    
+                    // Update division
+                    driver.division = newDivision;
+                    
+                    cancelDriverEdit();
+                    updateDriverManagerList();
+                    updateDisplay();
+                    alert('Driver updated successfully!');
+                }
+            }
+        }
+        
+        function cancelDriverEdit() {
+            if (window.editDriverModal) {
+                document.body.removeChild(window.editDriverModal);
+                window.editDriverModal = null;
+                window.originalDriverName = null;
+            }
+        }
+        
+        async function deleteSelectedDriver() {
+            if (!window.selectedDriverData) {
+                alert('Please select a driver to delete!');
+                return;
+            }
+            
+            const driver = window.selectedDriverData;
+            
+            if (confirm(`Are you sure you want to permanently delete driver '${driver.name}'?
+
+This will remove all their race history and cannot be undone.`)) {
+                try {
+                    // Try to delete via API
+                    const result = await apiCall(`drivers/${encodeURIComponent(driver.name)}`, 'DELETE');
+                    
+                    if (result.success) {
+                        await loadTournament();
+                        updateDriverManagerList();
+                        updateDisplay();
+                        window.selectedDriverElement = null;
+                        window.selectedDriverData = null;
+                        alert('Driver deleted successfully!');
+                    } else {
+                        alert(result.message || 'Error deleting driver');
+                    }
+                } catch (error) {
+                    // Fallback - delete locally
+                    delete tournament.drivers[driver.name];
+                    updateDriverManagerList();
+                    updateDisplay();
+                    window.selectedDriverElement = null;
+                    window.selectedDriverData = null;
+                    alert('Driver deleted successfully!');
+                }
+            }
+        }
+        
+        function addNewDriver() {
+            const nameInput = document.getElementById('newDriverName');
+            const divisionSelect = document.getElementById('newDriverDivision');
+            
+            const driverName = nameInput.value.trim();
+            const driverDivision = divisionSelect.value;
+            
+            if (!driverName) {
+                alert('Please enter a driver name');
+                return;
+            }
+            
+            if (!driverDivision) {
+                alert('Please select a division');
+                return;
+            }
+            
+            // Check if driver already exists
+            if (tournament.drivers[driverName]) {
+                alert('Driver already exists');
+                return;
+            }
+            
+            // Create new driver
+            const newDriver = {
+                name: driverName,
+                division: driverDivision,
+                wins: 0,
+                losses: 0,
+                status: 'ACTIVE',
+                eliminated_in: null
+            };
+            
+            // Add to tournament
+            tournament.drivers[driverName] = newDriver;
+            
+            // Clear inputs
+            nameInput.value = '';
+            divisionSelect.value = '';
+            
+            // Update displays
+            updateDriverManagerList();
+            updateDisplay();
+            
+            alert(`Driver "${driverName}" added to division "${driverDivision.replace(/_/g, ' ')}" successfully!`);
+        }
+        
+        function closeDriverManager() {
+            if (window.driverManagerModal) {
+                document.body.removeChild(window.driverManagerModal);
+                window.driverManagerModal = null;
+                window.selectedDriverElement = null;
+                window.selectedDriverData = null;
+            }
+        }
+        
+        // Initialize on load
+        loadTournament().then(() => {
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>
