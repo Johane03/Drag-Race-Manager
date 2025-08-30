@@ -122,7 +122,7 @@ class TournamentManager:
         self.divisions = [
             "2X4_4CYL", "4X4_4CYL", "4X4_6CYL_PETROL", 
             "4X4_6CYL_DIESEL", "4X4_V8_PETROL", "4X4_V8_DIESEL", 
-            "DAMES", "OPEN", "BIKES"
+            "DAMES", "OPEN", "PRODUCTION_4X4", "BIKES"
         ]
     
     def add_driver(self, name, division):
@@ -694,6 +694,16 @@ def get_next_race(division):
 def get_tournament_progress():
     """Get complete tournament progress including leaderboards and next races"""
     return jsonify(tournament.get_tournament_progress())
+
+@app.route('/api/reset', methods=['POST'])
+def reset_tournament():
+    """Reset tournament - clear all drivers and races"""
+    try:
+        global tournament
+        tournament = TournamentManager()  # Create new empty tournament
+        return jsonify({'success': True, 'message': 'Tournament reset successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
 
 if __name__ == '__main__':
     import os
