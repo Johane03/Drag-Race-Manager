@@ -133,15 +133,17 @@ To allow other devices to access the tournament (participants, spectators):
 ### File Structure
 ```
 drag_race_web_app/
-├── app.py                 # Main Flask application
-├── templates/
-│   └── index.html        # Single-page web interface
-├── static/
-│   └── ms_logo.png       # Favicon icon
-├── requirements.txt      # Python dependencies
-├── README.md            # This file
-├── registered_racers.xlsx # Sample data file
-└── test_functionality.html # Test file
+├── .gitignore           # Git ignore rules
+├── LICENSE              # MIT License  
+├── Procfile            # Railway deployment
+├── README.md           # Documentation
+├── app.py             # Flask app (modified)
+├── index.html         # Main template (moved from templates/)
+├── registered_racers.xlsx # Sample data
+├── requirements.txt   # Python deps (added gunicorn)
+├── runtime.txt        # Python version
+└── static/
+   └── ms_logo.png    # Your favicon
 ```
 
 ### API Endpoints

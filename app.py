@@ -13,7 +13,12 @@ import tempfile
 import csv
 import pandas as pd
 
-app = Flask(__name__)
+# Get the absolute path to the current directory
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+app = Flask(__name__,
+        template_folder=basedir,  # Templates now in root directory
+        static_folder=os.path.join(basedir, 'static'))
 
 # Copy the models from the desktop app
 class DriverStatus:
