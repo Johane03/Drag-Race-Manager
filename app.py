@@ -122,7 +122,7 @@ class TournamentManager:
         self.divisions = [
             "2X4_4CYL", "4X4_4CYL", "4X4_6CYL_PETROL", 
             "4X4_6CYL_DIESEL", "4X4_V8_PETROL", "4X4_V8_DIESEL", 
-            "DAMES", "OPEN"
+            "DAMES", "OPEN", "BIKES"
         ]
     
     def add_driver(self, name, division):
