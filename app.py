@@ -16,9 +16,9 @@ import pandas as pd
 # Get the absolute path to the current directory
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-app = Flask(__name__,
-        template_folder=basedir,  # Templates now in root directory
-        static_folder=os.path.join(basedir, 'static'))
+app = Flask(__name__, 
+           template_folder=basedir,  # Templates now in root directory
+           static_folder=os.path.join(basedir, 'static'))
 
 # Copy the models from the desktop app
 class DriverStatus:
@@ -237,6 +237,115 @@ class TournamentManager:
         self.drivers = {name: Driver.from_dict(driver_data) for name, driver_data in data['drivers'].items()}
         self.races = [Race(**race_data) for race_data in data['races']]
         self.race_counter = data.get('race_counter', len(self.races))
+    
+    def get_division_leaderboard(self, division):
+        """Get leaderboard for a specific division sorted by current standings"""
+        division_drivers = [d for d in self.drivers.values() if d.division == division]
+        
+        # Sort by: Status (ACTIVE first), Wins (desc), Win ratio (desc), Losses (asc)
+        division_drivers.sort(key=lambda d: (
+            d.status == DriverStatus.ELIMINATED,  # False sorts before True
+            -d.wins,
+            -d.win_ratio,
+            d.losses
+        ))
+        
+        leaderboard = []
+        for position, driver in enumerate(division_drivers, 1):
+            leaderboard.append({
+                'position': position,
+                'name': driver.name,
+                'division': driver.division,
+                'wins': driver.wins,
+                'losses': driver.losses,
+                'total_races': driver.total_races,
+                'win_ratio': round(driver.win_ratio, 3),
+                'status': driver.status
+            })
+        
+        return leaderboard
+    
+    def get_all_division_leaderboards(self):
+        """Get leaderboards for all divisions"""
+        leaderboards = {}
+        divisions = set(driver.division for driver in self.drivers.values())
+        for division in divisions:
+            leaderboards[division] = self.get_division_leaderboard(division)
+        return leaderboards
+    
+    def get_next_race_matchup(self, division=None):
+        """Determine who should race next based on tournament rules"""
+        if division:
+            divisions_to_check = [division]
+        else:
+            divisions_to_check = list(set(driver.division for driver in self.drivers.values()))
+        
+        next_races = {}
+        
+        for div in divisions_to_check:
+            active_drivers = self.get_active_drivers(div)
+            if len(active_drivers) < 2:
+                continue
+                
+            # Get the most recent race for this division to find the loser
+            recent_race = None
+            for race in reversed(self.races):
+                if race.division == div and race.race_type == "regular":
+                    recent_race = race
+                    break
+            
+            if recent_race:
+                # If there was a recent race, the loser must race next
+                loser = recent_race.loser
+                if loser in active_drivers:
+                    # Find next opponent (best available driver that hasn't raced the loser recently)
+                    opponent_candidates = [d for d in active_drivers if d != loser]
+                    if opponent_candidates:
+                        # Sort by wins ascending to give lower-performing drivers a chance
+                        opponent_candidates.sort(key=lambda d: self.drivers[d].wins)
+                        next_opponent = opponent_candidates[0]
+                        
+                        next_races[div] = {
+                            'driver1': loser,
+                            'driver2': next_opponent,
+                            'reason': f"{loser} lost the last race and must continue racing"
+                        }
+                else:
+                    # Loser was eliminated, pick top 2 active drivers
+                    if len(active_drivers) >= 2:
+                        leaderboard = self.get_division_leaderboard(div)
+                        top_active = [d for d in leaderboard if d['status'] == DriverStatus.ACTIVE][:2]
+                        if len(top_active) >= 2:
+                            next_races[div] = {
+                                'driver1': top_active[0]['name'],
+                                'driver2': top_active[1]['name'],
+                                'reason': "Top active drivers face off"
+                            }
+            else:
+                # No previous races in this division, start with top 2 drivers
+                if len(active_drivers) >= 2:
+                    leaderboard = self.get_division_leaderboard(div)
+                    top_active = [d for d in leaderboard if d['status'] == DriverStatus.ACTIVE][:2]
+                    if len(top_active) >= 2:
+                        next_races[div] = {
+                            'driver1': top_active[0]['name'],
+                            'driver2': top_active[1]['name'],
+                            'reason': "First race in division"
+                        }
+        
+        return next_races
+    
+    def get_tournament_progress(self):
+        """Get overall tournament progress and status"""
+        stats = self.get_tournament_stats()
+        leaderboards = self.get_all_division_leaderboards()
+        next_races = self.get_next_race_matchup()
+        
+        return {
+            'stats': stats,
+            'leaderboards': leaderboards,
+            'next_races': next_races
+        }
 
 # Global tournament instance
 tournament = TournamentManager()
@@ -249,7 +358,7 @@ def index():
 def static_files(filename):
     import os
     return send_file(os.path.join('static', filename))
-    
+
 @app.route('/api/drivers', methods=['GET'])
 def get_drivers():
     return jsonify([driver.to_dict() for driver in tournament.drivers.values()])
@@ -559,6 +668,32 @@ def load_excel():
         
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/leaderboards')
+def get_leaderboards():
+    """Get leaderboards for all divisions"""
+    return jsonify(tournament.get_all_division_leaderboards())
+
+@app.route('/api/leaderboard/<division>')
+def get_division_leaderboard(division):
+    """Get leaderboard for a specific division"""
+    return jsonify(tournament.get_division_leaderboard(division))
+
+@app.route('/api/next-races')
+def get_next_races():
+    """Get next race matchups for all divisions"""
+    return jsonify(tournament.get_next_race_matchup())
+
+@app.route('/api/next-race/<division>')
+def get_next_race(division):
+    """Get next race matchup for a specific division"""
+    next_races = tournament.get_next_race_matchup(division)
+    return jsonify(next_races.get(division, None))
+
+@app.route('/api/tournament-progress')
+def get_tournament_progress():
+    """Get complete tournament progress including leaderboards and next races"""
+    return jsonify(tournament.get_tournament_progress())
 
 if __name__ == '__main__':
     import os

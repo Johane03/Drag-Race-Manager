@@ -18,12 +18,15 @@
             color: #000000;
             line-height: 1.6;
             min-height: 100vh;
+            overflow-x: auto;
+            overflow-y: auto;
         }
         
         .container {
             max-width: 1500px;
             margin: 0 auto;
             padding: 10px;
+            min-height: 100vh;
         }
         
         .header {
@@ -404,6 +407,120 @@
             }
         }
         
+        /* Leaderboard Styles */
+        .leaderboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .next-race-card {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 2px solid #f59e0b;
+        }
+        
+        .next-races-display {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .next-race-item {
+            background: #fef3c7;
+            border: 1px solid #d97706;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .next-race-matchup {
+            font-weight: bold;
+            font-size: 16px;
+            color: #92400e;
+        }
+        
+        .next-race-reason {
+            font-size: 14px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .leaderboards-display {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        }
+        
+        .division-leaderboard {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 2px solid #f59e0b;
+        }
+        
+        .division-leaderboard h4 {
+            margin-bottom: 15px;
+            color: #92400e;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            border-bottom: 2px solid #f59e0b;
+            padding-bottom: 10px;
+        }
+        
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .leaderboard-table th {
+            background: #f59e0b;
+            color: #000;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+        
+        .leaderboard-table tbody tr:hover {
+            background: #fef3c7;
+        }
+        
+        .leaderboard-table .position {
+            width: 50px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .leaderboard-table .status {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+        
+        .leaderboard-table .status.ACTIVE {
+            color: #059669;
+        }
+        
+        .leaderboard-table .status.ELIMINATED {
+            color: #dc2626;
+        }
+        
+        .leaderboard-table .win-ratio {
+            text-align: center;
+        }
 
         
         /* Enhanced Mobile Responsiveness */
@@ -422,6 +539,20 @@
             
             .race-row, .race-row-division {
                 grid-template-columns: 1fr;
+            }
+            
+            .leaderboards-display {
+                grid-template-columns: 1fr;
+            }
+            
+            /* Division tab mobile layout */
+            .division-tab [style*="grid-template-columns"] {
+                display: block !important;
+            }
+            
+            .division-tab .division-drivers-card,
+            .division-tab .division-leaderboard {
+                margin-bottom: 20px;
             }
         }
         
@@ -514,6 +645,13 @@
                     <div class="stats-card" style="margin-top: 10px;">
                         <h3 class="card-title">Statistics</h3>
                         <div id="statsDisplay" class="stats-display">No data</div>
+                    </div>
+                    
+                    <div class="next-race-card" style="margin-top: 10px;">
+                        <h3 class="card-title">🚗 Next Races</h3>
+                        <div id="overviewNextRacesDisplay" class="next-races-display">
+                            <!-- Populated by JavaScript -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -626,9 +764,38 @@
                 tabContent.innerHTML = `
                     <div style="width: 100%; max-width: 100%;">
                         <div class="division-title">${division} Division</div>
-                        <div class="division-drivers-card">
-                            <h3 class="card-title">${division} Drivers</h3>
-                            <div class="division-drivers-list" id="${division}-list">
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div class="division-drivers-card">
+                                <h3 class="card-title">${division} Drivers</h3>
+                                <div class="division-drivers-list" id="${division}-list">
+                                    <!-- Populated by JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <div class="division-leaderboard">
+                                <h4>${division} Leaderboard</h4>
+                                <table class="leaderboard-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="position">#</th>
+                                            <th>Driver</th>
+                                            <th>Wins</th>
+                                            <th>Losses</th>
+                                            <th class="win-ratio">Win %</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="${division}-leaderboard">
+                                        <!-- Populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="next-race-card">
+                            <h3 class="card-title">🚗 Next Race</h3>
+                            <div id="${division}-next-race" class="next-races-display">
                                 <!-- Populated by JavaScript -->
                             </div>
                         </div>
@@ -698,17 +865,22 @@
                 document.getElementById('driverName').value = '';
                 document.getElementById('driverDivision').value = '';
                 await loadTournament();
-                updateDisplay();
+                await updateDisplay();
             } else {
                 showMessage('driverMessage', result.message, 'error');
             }
         }
         
-        function updateDisplay() {
+        async function updateDisplay() {
             updateDriversList();
             updateDriverDropdowns();
             updateStatsDisplay();
-            updateAllDivisionTabs();
+            try {
+                await updateAllDivisionTabs();
+                await updateOverviewNextRaces();
+            } catch (error) {
+                console.error('Error updating display:', error);
+            }
         }
         
         function updateDriversList() {
@@ -860,16 +1032,19 @@
             `;
         }
         
-        function updateAllDivisionTabs() {
-            divisions.forEach(division => {
-                updateDivisionTab(division);
-            });
+        async function updateAllDivisionTabs() {
+            const updatePromises = divisions.map(division => updateDivisionTab(division));
+            await Promise.all(updatePromises);
         }
         
-        function updateDivisionTab(division) {
+        async function updateDivisionTab(division) {
             const listContainer = document.getElementById(`${division}-list`);
+            const leaderboardContainer = document.getElementById(`${division}-leaderboard`);
+            const nextRaceContainer = document.getElementById(`${division}-next-race`);
+            
             if (!listContainer) return;
             
+            // Update drivers list
             listContainer.innerHTML = '';
             
             const divisionDrivers = Object.values(tournament.drivers).filter(d => d.division === division);
@@ -883,6 +1058,57 @@
                 item.textContent = `${driver.name} - Wins:${driver.wins} Losses:${driver.losses} [${driver.status}]`;
                 listContainer.appendChild(item);
             });
+            
+            // Update leaderboard
+            if (leaderboardContainer) {
+                try {
+                    const leaderboard = await apiCall(`leaderboard/${division}`);
+                    
+                    leaderboardContainer.innerHTML = '';
+                    
+                    leaderboard.forEach(driver => {
+                        const winPercent = Math.round(driver.win_ratio * 100);
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="position">${driver.position}</td>
+                            <td><strong>${driver.name}</strong></td>
+                            <td>${driver.wins}</td>
+                            <td>${driver.losses}</td>
+                            <td class="win-ratio">${winPercent}%</td>
+                            <td class="status ${driver.status}">${driver.status}</td>
+                        `;
+                        leaderboardContainer.appendChild(row);
+                    });
+                } catch (error) {
+                    console.error(`Error updating ${division} leaderboard:`, error);
+                    leaderboardContainer.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Unable to load leaderboard</td></tr>';
+                }
+            }
+            
+            // Update next race
+            if (nextRaceContainer) {
+                try {
+                    const nextRace = await apiCall(`next-race/${division}`);
+                    
+                    if (nextRace) {
+                        nextRaceContainer.innerHTML = `
+                            <div class="next-race-item">
+                                <div>
+                                    <div class="next-race-matchup">
+                                        ${nextRace.driver1} vs ${nextRace.driver2}
+                                    </div>
+                                    <div class="next-race-reason">${nextRace.reason}</div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        nextRaceContainer.innerHTML = '<p style="text-align: center; color: #666; font-style: italic;">No race scheduled</p>';
+                    }
+                } catch (error) {
+                    console.error(`Error updating ${division} next race:`, error);
+                    nextRaceContainer.innerHTML = '<p style="text-align: center; color: #999; font-style: italic;">Unable to load next race</p>';
+                }
+            }
         }
         
         async function recordRace() {
@@ -1108,8 +1334,45 @@
             }, 5000);
         }
         
+        
+        async function updateOverviewNextRaces() {
+            try {
+                const nextRaces = await apiCall('next-races');
+                const container = document.getElementById('overviewNextRacesDisplay');
+                
+                if (Object.keys(nextRaces).length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #666; font-style: italic;">No races scheduled</p>';
+                    return;
+                }
+                
+                let html = '';
+                for (const [division, raceData] of Object.entries(nextRaces)) {
+                    html += `
+                        <div class="next-race-item">
+                            <div>
+                                <div class="next-race-matchup">
+                                    ${division.replace(/_/g, ' ')}: ${raceData.driver1} vs ${raceData.driver2}
+                                </div>
+                                <div class="next-race-reason">${raceData.reason}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error updating next races:', error);
+                const container = document.getElementById('overviewNextRacesDisplay');
+                container.innerHTML = '<p style="text-align: center; color: #999; font-style: italic;">Unable to load next races</p>';
+            }
+        }
+        
+        
         // Action buttons
         function loadFile() {
+            console.log('Load button clicked!');
+            
             // Create a file input element
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
@@ -1118,33 +1381,52 @@
             
             fileInput.onchange = async function(event) {
                 const file = event.target.files[0];
-                if (!file) return;
+                if (!file) {
+                    console.log('No file selected');
+                    return;
+                }
+                
+                console.log('File selected:', file.name);
                 
                 try {
                     const fileName = file.name.toLowerCase();
                     
                     if (fileName.endsWith('.json')) {
+                        console.log('Processing JSON file...');
                         // Handle JSON files
                         const text = await file.text();
                         const tournamentData = JSON.parse(text);
                         
                         // Validate the data structure
-                        if (!tournamentData.drivers || !tournamentData.races) {
-                            alert('Invalid tournament file format');
+                        if (!tournamentData.drivers) {
+                            alert('Invalid tournament file format - missing drivers data');
                             return;
                         }
+                        
+                        // Ensure races array exists even if empty
+                        if (!tournamentData.races) {
+                            tournamentData.races = [];
+                        }
+                        
+                        // Ensure race_counter exists
+                        if (!tournamentData.race_counter) {
+                            tournamentData.race_counter = 0;
+                        }
+                        
+                        console.log('Sending data to server...');
                         
                         // Load the tournament data
                         const result = await apiCall('load', 'POST', tournamentData);
                         
                         if (result.success) {
-                            alert('Tournament loaded successfully!');
+                            showMessage('driverMessage', 'Tournament loaded successfully!', 'success');
                             await loadTournament();
-                            updateDisplay();
+                            await updateDisplay();
                         } else {
-                            alert('Error loading tournament: ' + result.message);
+                            showMessage('driverMessage', 'Error loading tournament: ' + result.message, 'error');
                         }
                     } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                        console.log('Processing Excel file...');
                         // Handle Excel files by sending to server
                         const formData = new FormData();
                         formData.append('file', file);
@@ -1157,17 +1439,18 @@
                         const result = await response.json();
                         
                         if (result.success) {
-                            alert('Tournament loaded from Excel successfully!');
+                            showMessage('driverMessage', 'Tournament loaded from Excel successfully!', 'success');
                             await loadTournament();
-                            updateDisplay();
+                            await updateDisplay();
                         } else {
-                            alert('Error loading Excel file: ' + result.message);
+                            showMessage('driverMessage', 'Error loading Excel file: ' + result.message, 'error');
                         }
                     } else {
-                        alert('Please select a JSON or Excel file');
+                        showMessage('driverMessage', 'Please select a JSON or Excel file', 'error');
                     }
                 } catch (error) {
-                    alert('Error reading file: ' + error.message);
+                    console.error('Error reading file:', error);
+                    showMessage('driverMessage', 'Error reading file: ' + error.message, 'error');
                 }
             };
             
